@@ -2,9 +2,13 @@ package caller
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
+
+var sep = string(filepath.Separator)
 
 // At returns a string containing the function, file, and line number of a
 // calling function. depth indicates the depth of the call stack to report; a
@@ -15,27 +19,24 @@ import (
 //
 // At will panic if this information cannot be determined.
 func At(depth int) string {
-	pc, filepath, line, ok := runtime.Caller(depth)
+	pc, path, line, ok := runtime.Caller(depth)
 	if !ok {
 		panic("function lookup failed")
 	}
-	// lookup full function listing
-	fnName := runtime.FuncForPC(pc).Name()
-	// trim it down to just the function name
-	fnName = fnName[strings.Index(fnName, "/")+1:]
-	fnName = fnName[strings.Index(fnName, "/")+1:]
+	// lookup and trim the function name
+	fnName := filepath.Base(runtime.FuncForPC(pc).Name())
 	fnName = fnName[strings.Index(fnName, ".")+1:]
 
 	// get folder/file by trimming the appropriate prefix
 	var file string
-	if strings.HasPrefix(filepath, runtime.GOROOT()) {
-		// stdlib
-		file = strings.TrimPrefix(filepath, runtime.GOROOT()+"/src/pkg/")
-	} else {
-		// trim the host + username
-		file = filepath[strings.LastIndex(filepath, "src/")+4:]
-		file = file[strings.Index(file, "/")+1:]
-		file = file[strings.Index(file, "/")+1:]
+	if strings.HasPrefix(path, runtime.GOROOT()) {
+		// stdlib: trim $GOROOT/src/pkg/
+		file = strings.TrimPrefix(path, runtime.GOROOT())
+		file = strings.SplitN(file, sep, 4)[3]
+	} else if strings.HasPrefix(path, os.Getenv("GOPATH")) {
+		// standard: trim $GOPATH/host/username/
+		file = strings.TrimPrefix(path, os.Getenv("GOPATH"))
+		file = strings.SplitN(file, sep, 5)[4]
 	}
 
 	return fmt.Sprintf("%s (%s:%d)", fnName, file, line)
