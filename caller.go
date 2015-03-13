@@ -27,12 +27,13 @@ func At(depth int) string {
 	fnName = fnName[strings.Index(fnName, ".")+1:]
 
 	// get folder/file by trimming the appropriate prefix
-	file := filepath[strings.LastIndex(filepath, "src")+4:]
-	if strings.HasPrefix(file, "pkg") {
+	var file string
+	if strings.HasPrefix(filepath, runtime.GOROOT()) {
 		// stdlib
-		file = strings.TrimPrefix(file, "pkg/")
+		file = strings.TrimPrefix(filepath, runtime.GOROOT()+"/src/pkg/")
 	} else {
 		// trim the host + username
+		file = filepath[strings.LastIndex(filepath, "src/")+4:]
 		file = file[strings.Index(file, "/")+1:]
 		file = file[strings.Index(file, "/")+1:]
 	}
