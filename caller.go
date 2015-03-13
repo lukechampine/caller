@@ -20,9 +20,11 @@ func At(depth int) string {
 		panic("function lookup failed")
 	}
 	// lookup full function listing
-	pcname := runtime.FuncForPC(pc).Name()
+	fnName := runtime.FuncForPC(pc).Name()
 	// trim it down to just the function name
-	fnName := strings.Split(pcname[strings.LastIndex(pcname, "/")+1:], ".")[1]
+	fnName = fnName[strings.Index(fnName, "/")+1:]
+	fnName = fnName[strings.Index(fnName, "/")+1:]
+	fnName = fnName[strings.Index(fnName, ".")+1:]
 
 	// get folder/file by trimming the appropriate prefix
 	file := filepath[strings.LastIndex(filepath, "src")+4:]
