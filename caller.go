@@ -21,14 +21,19 @@ func At(depth int) string {
 	}
 	// lookup full function listing
 	pcname := runtime.FuncForPC(pc).Name()
-	// trim it down to just the pkg and function name
-	pkgfunc := strings.Split(pcname[strings.LastIndex(pcname, "/")+1:], ".")
-	pkg, fnName := pkgfunc[0], pkgfunc[1]
+	// trim it down to just the function name
+	fnName := strings.Split(pcname[strings.LastIndex(pcname, "/")+1:], ".")[1]
 
-	// get the folder/file from the filepath by trimming up to the first
-	// occurance of pkg
-	file := filepath[strings.LastIndex(filepath, "src")+3:]
-	file = file[strings.Index(file, pkg):]
+	// get folder/file by trimming the appropriate prefix
+	file := filepath[strings.LastIndex(filepath, "src")+4:]
+	if strings.HasPrefix(file, "pkg") {
+		// stdlib
+		file = strings.TrimPrefix(file, "pkg/")
+	} else {
+		// trim the host + username
+		file = file[strings.Index(file, "/")+1:]
+		file = file[strings.Index(file, "/")+1:]
+	}
 
 	return fmt.Sprintf("%s (%s:%d)", fnName, file, line)
 }
