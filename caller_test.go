@@ -8,7 +8,7 @@ import (
 type foo struct{}
 
 func (f *foo) bar() string {
-	return At(1)
+	return Me()
 }
 
 func TestCaller(t *testing.T) {
@@ -32,7 +32,7 @@ func TestCaller(t *testing.T) {
 
 	var lambda string
 	func() {
-		lambda = At(1)
+		lambda = Me()
 	}()
 	lambdaExpected := "func·001 (caller/caller_test.go:35)"
 	if lambda != lambdaExpected {

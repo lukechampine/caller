@@ -40,15 +40,21 @@ func At(depth int) string {
 	return fmt.Sprintf("%s (%s:%d)", fnName, file, line)
 }
 
-// Get returns the formatted call string of the function that called the
-// caller of Get. It is functionally equivalent to At(2).
+// Me returns a formatted call string describing of the invocation of Me. It
+// is functionally equivalent to At(1).
+func Me() string {
+	return At(2) // Me -> Caller of Me
+}
+
+// Get returns a formatted call string of the invocation of the caller of Get.
+// It is functionally equivalent to At(2).
 func Get() string {
 	return At(3) // Get -> Caller of Get -> Caller of caller
 }
 
 // Trace returns a listing of the callstack in the same format as At, to the
-// given traversal depth. Note that unlike At, depth is not an absolute depth,
-// but relative to Trace; Trace(1) will return the function that called Trace.
+// given traversal depth. Note that unlike At, depth is not absolute, but
+// relative to Trace; Trace(1)[0] will describe the invocation of Trace.
 func Trace(depth int) []string {
 	trace := make([]string, depth)
 	for i := range trace {
