@@ -21,4 +21,12 @@ func TestMyName(t *testing.T) {
 	if trace != traceExpected {
 		t.Errorf("Get produced bad result: expected %s, got %s", traceExpected, trace)
 	}
+	var lambda string
+	func() {
+		lambda = At(1)
+	}()
+	lambdaExpected := "func·001 (caller/caller_test.go:26)"
+	if lambda != lambdaExpected {
+		t.Errorf("At produced bad result: expected %s, got %s", lambdaExpected, lambda)
+	}
 }
