@@ -19,13 +19,13 @@ func TestCaller(t *testing.T) {
 	}
 
 	got := Get()
-	gotExpected := "tRunner (testing/testing.go:422)" // TODO: brittle
+	gotExpected := "tRunner (testing/testing.go:746)" // TODO: brittle
 	if got != gotExpected {
 		t.Errorf("Get produced bad result: expected %s, got %s", gotExpected, got)
 	}
 
 	trace := strings.Join(Trace(2), ", ")
-	traceExpected := "TestCaller (caller/caller_test.go:27), tRunner (testing/testing.go:422)"
+	traceExpected := "TestCaller (caller/caller_test.go:27), tRunner (testing/testing.go:746)"
 	if trace != traceExpected {
 		t.Errorf("Get produced bad result: expected %s, got %s", traceExpected, trace)
 	}
@@ -34,7 +34,7 @@ func TestCaller(t *testing.T) {
 	func() {
 		lambda = Me()
 	}()
-	lambdaExpected := "func·001 (caller/caller_test.go:35)"
+	lambdaExpected := "TestCaller.func1 (caller/caller_test.go:35)"
 	if lambda != lambdaExpected {
 		t.Errorf("At produced bad result: expected %s, got %s", lambdaExpected, lambda)
 	}

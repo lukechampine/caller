@@ -2,13 +2,40 @@ package caller
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 )
 
 var sep = string(filepath.Separator)
+
+// determine gopath by reading the stack trace of this file
+var gopath = func() string {
+	_, path, _, ok := runtime.Caller(1)
+	if !ok {
+		panic("gopath lookup failed")
+	} else if !strings.HasSuffix(path, "github.com/lukechampine/caller/caller.go") {
+		panic("sentinel function moved")
+	}
+	return strings.TrimSuffix(path, "github.com/lukechampine/caller/caller.go")
+}()
+
+// determine goroot by reading the stack trace of a stdlib function that takes
+// a function
+var goroot = func() string {
+	var path string
+	var ok bool
+	strings.TrimFunc("foo", func(rune) bool {
+		_, path, _, ok = runtime.Caller(1)
+		return true
+	})
+	if !ok {
+		panic("goroot lookup failed")
+	} else if !strings.HasSuffix(path, "strings/strings.go") {
+		panic("sentinel function moved")
+	}
+	return strings.TrimSuffix(path, "strings/strings.go")
+}()
 
 // At returns a string containing the function, file, and line number of a
 // calling function. depth indicates the depth of the call stack to report; a
@@ -29,14 +56,14 @@ func At(depth int) string {
 
 	// get folder/file by trimming the appropriate prefix
 	var file string
-	if strings.HasPrefix(path, runtime.GOROOT()) {
-		// stdlib: trim $GOROOT/src/pkg/
-		file = strings.TrimPrefix(path, runtime.GOROOT())
-		file = strings.SplitN(file, sep, 4)[3]
-	} else if strings.HasPrefix(path, os.Getenv("GOPATH")) {
+	if strings.HasPrefix(path, goroot) {
+		// stdlib: trim $GOROOT/src/
+		file = strings.TrimPrefix(path, goroot)
+		file = strings.SplitN(file, sep, 1)[0]
+	} else if strings.HasPrefix(path, gopath) {
 		// standard: trim $GOPATH/host/username/
-		file = strings.TrimPrefix(path, os.Getenv("GOPATH"))
-		file = strings.SplitN(file, sep, 5)[4]
+		file = strings.TrimPrefix(path, gopath)
+		file = strings.SplitN(file, sep, 3)[2]
 	}
 
 	return fmt.Sprintf("%s (%s:%d)", fnName, file, line)
