@@ -64,3 +64,10 @@ func Trace(depth int) []string {
 	}
 	return trace
 }
+
+// Print prints the result of calling Trace(depth), formatted for readability.
+func Print(depth int) {
+	t := Trace(depth)
+	t = t[1:] // remove Print call
+	fmt.Println(strings.Join(t, "\n\t"))
+}
