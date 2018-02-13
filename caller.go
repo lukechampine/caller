@@ -15,7 +15,7 @@ var gopath = func() string {
 	if !ok {
 		panic("gopath lookup failed")
 	} else if !strings.HasSuffix(path, "github.com/lukechampine/caller/caller.go") {
-		panic("sentinel function moved")
+		panic("sentinel function moved: " + path)
 	}
 	return strings.TrimSuffix(path, "github.com/lukechampine/caller/caller.go")
 }()
@@ -32,7 +32,7 @@ var goroot = func() string {
 	if !ok {
 		panic("goroot lookup failed")
 	} else if !strings.HasSuffix(path, "strings/strings.go") {
-		panic("sentinel function moved")
+		panic("sentinel function moved: " + path)
 	}
 	return strings.TrimSuffix(path, "strings/strings.go")
 }()
@@ -56,15 +56,16 @@ func At(depth int) string {
 
 	// get folder/file by trimming the appropriate prefix
 	var file string
-	if strings.HasPrefix(path, goroot) {
-		// stdlib: trim $GOROOT/src/
-		file = strings.TrimPrefix(path, goroot)
-		file = strings.SplitN(file, sep, 1)[0]
-	} else if strings.HasPrefix(path, gopath) {
-		// standard: trim $GOPATH/host/username/
-		file = strings.TrimPrefix(path, gopath)
-		file = strings.SplitN(file, sep, 3)[2]
-	}
+	file = path
+	// if strings.HasPrefix(path, goroot) {
+	// 	// stdlib: trim $GOROOT/src/
+	// 	file = strings.TrimPrefix(path, goroot)
+	// 	file = strings.SplitN(file, sep, 1)[0]
+	// } else if strings.HasPrefix(path, gopath) {
+	// 	// standard: trim $GOPATH/host/username/
+	// 	file = strings.TrimPrefix(path, gopath)
+	// 	file = strings.SplitN(file, sep, 3)[2]
+	// }
 
 	return fmt.Sprintf("%s (%s:%d)", fnName, file, line)
 }
