@@ -14,10 +14,12 @@ var gopath = func() string {
 	_, path, _, ok := runtime.Caller(1)
 	if !ok {
 		panic("gopath lookup failed")
-	} else if !strings.HasSuffix(path, "github.com/lukechampine/caller/caller.go") {
+	}
+	i := strings.Index(path, "github.com/lukechampine/caller")
+	if i == -1 {
 		panic("sentinel function moved: " + path)
 	}
-	return strings.TrimSuffix(path, "github.com/lukechampine/caller/caller.go")
+	return path[:i]
 }()
 
 // determine goroot by reading the stack trace of a stdlib function that takes
